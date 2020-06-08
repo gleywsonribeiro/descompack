@@ -196,7 +196,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         String texto = stripper.getText(document);
         String nota[] = texto.split("\n");
         List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
-        String palpite = possiveisNotas.stream().filter(numero -> numero.length() == 5).collect(Collectors.toList()).get(0).trim();
+        String palpite = possiveisNotas.stream().filter(numero -> numero.trim().length() == 5).collect(Collectors.toList()).get(0).trim();
         
         return palpite; //nota[58];
     }
@@ -219,7 +219,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-                //pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+                pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
                 System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
             }
 
@@ -236,6 +236,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
