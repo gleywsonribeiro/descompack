@@ -5,15 +5,24 @@
  */
 package telas;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDField;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 /**
  *
@@ -182,6 +191,16 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private String getNumeroNota(PDDocument document) throws IOException {
+        PDFTextStripper stripper = new PDFTextStripper();
+        String texto = stripper.getText(document);
+        String nota[] = texto.split("\n");
+        List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
+        String palpite = possiveisNotas.stream().filter(numero -> numero.length() == 5).collect(Collectors.toList()).get(0).trim();
+        
+        return palpite; //nota[58];
+    }
+
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         try (PDDocument document = PDDocument.load(file)) {
             int numeroPaginas = document.getNumberOfPages();
@@ -200,8 +219,8 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-//                Thread.sleep(250);
-                pdd.save(diretorio.getAbsolutePath() + "/arquivo_splited_" + i + ".pdf");
+                //pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+                System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
             }
 
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
@@ -209,9 +228,11 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
