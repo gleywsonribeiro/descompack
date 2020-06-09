@@ -8,6 +8,7 @@ package telas;
 import exception.NegocioException;
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -18,18 +19,17 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 
 /**
  *
  * @author Gleywson
  */
-public class TelaDivideArquivo extends javax.swing.JInternalFrame {
+public class ExportaArquivo extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form TelaDivideArquivo
@@ -37,7 +37,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
     private File file;
     private File diretorio;
 
-    public TelaDivideArquivo() {
+    public ExportaArquivo() {
         initComponents();
     }
 
@@ -73,7 +73,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setMaximizable(true);
-        setTitle("Divisão de Arquivos");
+        setTitle("Exportar arquivo para Excel");
 
         jLabel1.setText("Escolher Arquivo:");
 
@@ -214,20 +214,40 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
             List<PDDocument> pages = splitter.split(document);
 
             Iterator<PDDocument> iterator = pages.iterator();
-            int i = 0;
+           
+            int pagina = 0;
+            int linha = 0;
+
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            HSSFSheet sheet = workbook.createSheet("NF");
 
             while (iterator.hasNext()) {
                 PDDocument pdd = iterator.next();
-                i++;
+                pagina++;
 
-                int status = (100 * i) / numeroPaginas;
+                int status = (100 * pagina) / numeroPaginas;
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-                pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-                System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-            }
+                Row linhaNota = sheet.createRow(linha++);
 
+                String[] texto = new PDFTextStripper().getText(pdd).split("\n");
+                for (int coluna = 0; coluna < texto.length; coluna++) {
+                    System.out.println("[" + coluna + "] -> " + texto[coluna]);
+                    Cell celula = linhaNota.createCell(coluna);
+                    celula.setCellValue(texto[coluna]);
+
+                }
+                System.out.println("====================================================================");
+
+            }
+            
+            try (FileOutputStream stream = new FileOutputStream(new File(diretorio.getAbsolutePath() + "\\" + "teste" + ".xls"))) {
+                workbook.write(stream);
+                
+                stream.flush();
+            }
+            
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {

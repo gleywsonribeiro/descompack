@@ -62,6 +62,11 @@ public class Menu extends javax.swing.JFrame {
 
         jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/excel.png"))); // NOI18N
         jMenuItem2.setText("Exportar Excel");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         jMenu4.add(jMenuItem2);
 
         jMenuBar1.add(jMenu4);
@@ -107,6 +112,14 @@ public class Menu extends javax.swing.JFrame {
         da.setVisible(true);
 
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        ExportaArquivo ea = new ExportaArquivo();
+        Dimension dimension = desktopPane.getSize();
+        ea.setSize(dimension);
+        desktopPane.add(ea);
+        ea.setVisible(true);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     public void setImageIcon(JFrame frame) {
         try {
