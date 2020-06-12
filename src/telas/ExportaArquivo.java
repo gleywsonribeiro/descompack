@@ -192,17 +192,19 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private String getNumeroNota(PDDocument document) {
-        try {
-            PDFTextStripper stripper = new PDFTextStripper();
-            String texto = stripper.getText(document);
-            String nota[] = texto.split("\n");
-            List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
-            String palpite = possiveisNotas.stream().filter(numero -> numero.trim().length() == 5).collect(Collectors.toList()).get(0).trim();
-
-            return palpite; //nota[58];
-        } catch (Exception e) {
-            throw new NegocioException("Erro ao extrair numero de nota: " + e.getMessage());
+    private void autoSizeColumns(HSSFWorkbook workbook) {
+        int numberOfSheets = workbook.getNumberOfSheets();
+        for (int i = 0; i < numberOfSheets; i++) {
+            HSSFSheet sheet = workbook.getSheetAt(i);
+            if (sheet.getPhysicalNumberOfRows() > 0) {
+                Row row = sheet.getRow(sheet.getFirstRowNum());
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    int columnIndex = cell.getColumnIndex();
+                    sheet.autoSizeColumn(columnIndex);
+                }
+            }
         }
     }
 
@@ -214,12 +216,22 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
             List<PDDocument> pages = splitter.split(document);
 
             Iterator<PDDocument> iterator = pages.iterator();
-           
+
             int pagina = 0;
-            int linha = 0;
+            int linha = 1;
 
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet("NF");
+
+            //---   CABEÇALHO
+            List<String> cabecalho = Arrays.asList("UNIDADE", "MUNICÍPIO", "CNPJ", "EMISSÃO", "NF", "VALOR", "SERVIÇO PRESTADO", "NÃO IDENTIFICADO", "COFINS", "PIS", "INSS", "IRRF", "CSLL", "ISS");
+
+            Row linhaCabecalho = sheet.createRow(linha - 1);
+            int colunaCabecalho = 0;
+            for (String nome : cabecalho) {
+                Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
+                celula.setCellValue(nome);
+            }
 
             while (iterator.hasNext()) {
                 PDDocument pdd = iterator.next();
@@ -232,22 +244,50 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
                 Row linhaNota = sheet.createRow(linha++);
 
                 String[] texto = new PDFTextStripper().getText(pdd).split("\n");
-                for (int coluna = 0; coluna < texto.length; coluna++) {
-                    System.out.println("[" + coluna + "] -> " + texto[coluna]);
-                    Cell celula = linhaNota.createCell(coluna);
-                    celula.setCellValue(texto[coluna]);
 
+                List<String> body = Arrays.asList(texto[17].split(":")[1], texto[40], texto[59].split(" ")[0],
+                        texto[56], texto[58], texto[45], texto[71].split(" ")[0], "773909900",
+                        texto[23].substring(4, 7), texto[23].substring(0, 3),
+                        texto[68].split(" ")[0], texto[68].split(" ")[1],
+                        texto[68].split(" ")[2], "0");
+
+                //---
+                //17 -> locais
+                //40 -> municipio, o indice anterior tem que ser o bairro
+                //59 -> cnpj (precisa ser tratado)
+                //56 -> emissão
+                //58 -> NF (que pode variar)
+                //45 e 46 -> valor da nota, possuem o valor da nota
+                //71 -> serviço prestado
+                // esse valor deve ser inserido na sequencia, mas não faz muito sentido -> 773909900
+                //23 -> cofins, precisa ser tratado
+                //23 -> pis com cofins
+                //68 -> INSS	IRRF	CSLL 
+                //ISS SEMPRE 0
+                int coluna = 0;
+                for (String valor : body) {
+                    Cell celula = linhaNota.createCell(coluna++);
+                    celula.setCellValue(valor);
+//                    sheet.autoSizeColumn(coluna);
                 }
-                System.out.println("====================================================================");
 
+//                for (int coluna = 0; coluna < texto.length; coluna++) {
+//                    System.out.println("[" + coluna + "] -> " + texto[coluna]);
+//                    Cell celula = linhaNota.createCell(coluna);
+//                    celula.setCellValue(texto[coluna]);
+//
+//                }
+//                System.out.println("====================================================================");
             }
-            
-            try (FileOutputStream stream = new FileOutputStream(new File(diretorio.getAbsolutePath() + "\\" + "teste" + ".xls"))) {
+
+            autoSizeColumns(workbook);
+
+            try (FileOutputStream stream = new FileOutputStream(new File(diretorio.getAbsolutePath() + "\\" + "Notas Fiscais" + ".xls"))) {
                 workbook.write(stream);
-                
+
                 stream.flush();
             }
-            
+
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
