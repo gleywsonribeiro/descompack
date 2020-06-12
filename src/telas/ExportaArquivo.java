@@ -245,11 +245,11 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
 
                 String[] texto = new PDFTextStripper().getText(pdd).split("\n");
 
-                List<String> body = Arrays.asList(texto[17].split(":")[1], texto[40], texto[59].split(" ")[0],
-                        texto[56], texto[58], texto[45], texto[71].split(" ")[0], "773909900",
-                        texto[23].substring(4, 7), texto[23].substring(0, 3),
-                        texto[68].split(" ")[0], texto[68].split(" ")[1],
-                        texto[68].split(" ")[2], "0");
+                List<String> body = Arrays.asList(texto[17], texto[40], texto[59],
+                        texto[56], texto[58], texto[45], texto[71], "773909900",
+                        texto[23], texto[23],
+                        texto[68], texto[68],
+                        texto[68], "0");
 
                 //---
                 //17 -> locais
