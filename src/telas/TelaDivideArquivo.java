@@ -226,6 +226,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
 
                 pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
                 System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+                pdd.close();
             }
 
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
