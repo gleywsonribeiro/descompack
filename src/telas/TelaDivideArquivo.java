@@ -6,7 +6,9 @@
 package telas;
 
 import exception.NegocioException;
+import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,6 +22,8 @@ import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -194,13 +198,21 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
 
     private String getNumeroNota(PDDocument document) {
         try {
-            PDFTextStripper stripper = new PDFTextStripper();
-            String texto = stripper.getText(document);
-            String nota[] = texto.split("\n");
-            List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
-            String palpite = possiveisNotas.stream().filter(numero -> numero.trim().length() == 5).collect(Collectors.toList()).get(0).trim();
+//            PDFTextStripper stripper = new PDFTextStripper();
+//            String texto = stripper.getText(document);
+//            String nota[] = texto.split("\n");
+//            List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
+//            String palpite = possiveisNotas.stream().filter(numero -> numero.trim().length() == 5).collect(Collectors.toList()).get(0).trim();
+//
+//            return palpite; //nota[58];
 
-            return palpite; //nota[58];
+            Rectangle2D rd = new Rectangle2D.Double(370, 800, 100, 50);
+            Rectangle2D rd2 = new Rectangle2D.Double(10, 10, 900, 300);
+            PDFTextStripperByArea area = new PDFTextStripperByArea();
+            PDPage page = document.getPage(0);
+            area.addRegion("nf", rd2);
+            area.extractRegions(page);
+            return area.getTextForRegion("nf");
         } catch (Exception e) {
             throw new NegocioException("Erro ao extrair numero de nota: " + e.getMessage());
         }
@@ -217,16 +229,24 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
             int i = 0;
 
             while (iterator.hasNext()) {
-                PDDocument pdd = iterator.next();
-                i++;
+                try (PDDocument pdd = iterator.next()) {
+                    i++;
 
-                int status = (100 * i) / numeroPaginas;
-                barraStatus.setValue(status);
-                barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+                    int status = (100 * i) / numeroPaginas;
+                    barraStatus.setValue(status);
+                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-                pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-                System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-                pdd.close();
+//                PDPage page = pdd.getPage(0);
+//                PDPageContentStream stream = new PDPageContentStream(pdd, page, AppendMode.APPEND, false);
+//                stream.setNonStrokingColor(Color.RED);
+//                stream.addRect(375, 805, 40, 15);
+//
+//                stream.fill();
+//                stream.close();
+//                pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+                    pdd.save(diretorio.getAbsolutePath() + "\\" + i + ".pdf");
+                    System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+                }
             }
 
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
