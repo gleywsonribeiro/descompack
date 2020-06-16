@@ -41,6 +41,9 @@ public class Menu extends javax.swing.JFrame {
         jMenu4 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
+        jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -68,6 +71,20 @@ public class Menu extends javax.swing.JFrame {
             }
         });
         jMenu4.add(jMenuItem2);
+        jMenu4.add(jSeparator1);
+
+        jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/para-icon.PNG"))); // NOI18N
+        jMenuItem3.setText("Pará Segurança");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem3);
+
+        jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/new-icon.PNG"))); // NOI18N
+        jMenuItem4.setText("New Line");
+        jMenu4.add(jMenuItem4);
 
         jMenuBar1.add(jMenu4);
 
@@ -121,6 +138,14 @@ public class Menu extends javax.swing.JFrame {
         ea.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+       ParaSegurancaView view = new ParaSegurancaView();
+        Dimension dimension = desktopPane.getSize();
+        view.setSize(dimension);
+        desktopPane.add(view);
+        view.setVisible(true);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
     public void setImageIcon(JFrame frame) {
         try {
             frame.setIconImage(Toolkit.getDefaultToolkit().getImage("src/imagens/box.png"));
@@ -141,5 +166,8 @@ public class Menu extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JPopupMenu.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
 }

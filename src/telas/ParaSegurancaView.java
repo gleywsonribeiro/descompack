@@ -6,42 +6,35 @@
 package telas;
 
 import exception.NegocioException;
-import java.awt.Color;
-import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
-import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 /**
  *
  * @author Gleywson
  */
-public class TelaDivideArquivo extends javax.swing.JInternalFrame {
+public class ParaSegurancaView extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form TelaDivideArquivo
      */
     private File file;
     private File diretorio;
+    private File[] arquivos;
 
-    public TelaDivideArquivo() {
+    public ParaSegurancaView() {
         initComponents();
     }
 
@@ -77,9 +70,9 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setMaximizable(true);
-        setTitle("Divisão de Arquivos");
+        setTitle("Exportar Arquivos");
 
-        jLabel1.setText("Escolher Arquivo:");
+        jLabel1.setText("Selecione os arquivos para Importação");
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -91,9 +84,10 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         jLabel2.setText("Escolha a pasta de Destino:");
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
+        jButton2.setEnabled(false);
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                buscarDestino(evt);
             }
         });
 
@@ -137,7 +131,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
                                 .addComponent(jButton2)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtOrigem, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
+                            .addComponent(txtOrigem, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
                             .addComponent(txtDestino))))
                 .addContainerGap())
         );
@@ -166,27 +160,30 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
                 .addContainerGap())
         );
 
+        getAccessibleContext().setAccessibleName("paraSeguranca");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser chooserArquivo = new JFileChooser();
         chooserArquivo.setFileFilter(new FileNameExtensionFilter("Arquivo PDF (*.pdf)", "pdf"));
-        chooserArquivo.setApproveButtonText("Selecione o arquivo");
+        chooserArquivo.setMultiSelectionEnabled(true);
+        chooserArquivo.setApproveButtonText("Selecione os arquivos");
         chooserArquivo.setDialogTitle("Seletor de Notas Fiscais");
         //Configura a possíbilidade de selecionar vários arquivos
         chooserArquivo.setAcceptAllFileFilterUsed(false);
 
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
-            file = chooserArquivo.getSelectedFile();
-            String caminho = file.getAbsolutePath();
+            arquivos = chooserArquivo.getSelectedFiles();
+            String caminho = arquivos[0].getAbsolutePath();
             txtOrigem.setText(caminho);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void buscarDestino(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarDestino
         JFileChooser chooserDiretorio = new JFileChooser();
         chooserDiretorio.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int escolha = chooserDiretorio.showOpenDialog(getParent());
@@ -194,7 +191,7 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
         if (escolha == JFileChooser.APPROVE_OPTION) {
             txtDestino.setText(diretorio.getAbsolutePath());
         }
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_buscarDestino
 
     private String getNumeroNota(PDDocument document) {
         try {
@@ -219,52 +216,53 @@ public class TelaDivideArquivo extends javax.swing.JInternalFrame {
     }
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try (PDDocument document = PDDocument.load(file)) {
-            int numeroPaginas = document.getNumberOfPages();
-            Splitter splitter = new Splitter();
-
-            List<PDDocument> pages = splitter.split(document);
-
-            Iterator<PDDocument> iterator = pages.iterator();
-            int i = 0;
-
-            while (iterator.hasNext()) {
-                try (PDDocument pdd = iterator.next()) {
-                    i++;
-
-                    int status = (100 * i) / numeroPaginas;
-                    barraStatus.setValue(status);
-                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
-
-//                PDPage page = pdd.getPage(0);
-//                PDPageContentStream stream = new PDPageContentStream(pdd, page, AppendMode.APPEND, false);
-//                stream.setNonStrokingColor(Color.RED);
-//                stream.addRect(375, 805, 40, 15);
-//
-//                stream.fill();
-//                stream.close();
-//                pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-                    pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-//                    System.out.println(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-
-                }
+        for (int i = 0; i < arquivos.length; i++) {
+            try (PDDocument document = PDDocument.load(arquivos[i])) {
+                int status = (100 * (i + 1)) / arquivos.length;
+                barraStatus.setValue(status);
+                barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
+                        "Erro!", JOptionPane.ERROR_MESSAGE);
             }
-
-            JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
-                    "Êxito", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } catch (NullPointerException ex) {
-            JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         }
+//        try (PDDocument document = PDDocument.load(file)) {
+//            int numeroPaginas = document.getNumberOfPages();
+//            Splitter splitter = new Splitter();
+//
+//            List<PDDocument> pages = splitter.split(document);
+//
+//            Iterator<PDDocument> iterator = pages.iterator();
+//            int i = 0;
+//
+//            while (iterator.hasNext()) {
+//                try (PDDocument pdd = iterator.next()) {
+//                    i++;
+//
+//                    int status = (100 * i) / numeroPaginas;
+//                    barraStatus.setValue(status);
+//                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+//
+//                    pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
+//
+//                }
+//            }
+//
+//            JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
+//                    "Êxito", JOptionPane.INFORMATION_MESSAGE);
+//        } catch (IOException ex) {
+//            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
+//                    "Erro!", JOptionPane.ERROR_MESSAGE);
+//            ex.printStackTrace();
+//        } catch (NullPointerException ex) {
+//            JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
+//                    "Erro!", JOptionPane.ERROR_MESSAGE);
+//            ex.printStackTrace();
+//        } catch (Exception ex) {
+//            JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
+//                    "Erro!", JOptionPane.ERROR_MESSAGE);
+//            ex.printStackTrace();
+//        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
 
