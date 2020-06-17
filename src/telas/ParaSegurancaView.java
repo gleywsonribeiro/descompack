@@ -9,11 +9,20 @@ import exception.NegocioException;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import modelo.PaginaPDF;
+import modelo.RetanguloPDF;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
+import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.COSObjectable;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
 
 /**
@@ -25,7 +34,6 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
     /**
      * Creates new form TelaDivideArquivo
      */
-    private File file;
     private File diretorio;
     private File[] arquivos;
 
@@ -190,24 +198,31 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
 
     private String getNumeroNota(PDDocument document) {
         try {
-//            PDFTextStripper stripper = new PDFTextStripper();
-//            String texto = stripper.getText(document);
-//            String nota[] = texto.split("\n");
-//            List<String> possiveisNotas = Arrays.asList(nota[57], nota[58], nota[59], nota[60]);
-//            String palpite = possiveisNotas.stream().filter(numero -> numero.trim().length() == 5).collect(Collectors.toList()).get(0).trim();
-//
-//            return palpite; //nota[58];
-
-            Rectangle2D rd = new Rectangle2D.Double(370, 800, 100, 50);
-            Rectangle2D rd2 = new Rectangle2D.Double(370, 0, 100, 50);
-            PDFTextStripperByArea area = new PDFTextStripperByArea();
             PDPage page = document.getPage(0);
-            area.addRegion("nf", rd2);
-            area.extractRegions(page);
-            return area.getTextForRegion("nf").split("\n")[1].trim();
-        } catch (Exception e) {
+
+            PaginaPDF pdf = new PaginaPDF(8.23, 11.63);
+            RetanguloPDF campo = new RetanguloPDF("NF", 4.77, 0.58, 1.1, 0.2);
+
+           return getCampoTextoPDF(page, pdf, campo);
+        } catch (IOException e) {
             throw new NegocioException("Erro ao extrair numero de nota: " + e.getMessage());
         }
+    }
+
+    private String getCampoTextoPDF(PDPage pagina, PaginaPDF paginaPDF, RetanguloPDF retanguloPDF) throws IOException {
+        PDRectangle mediaBox = pagina.getMediaBox();
+
+        Double x = mediaBox.getWidth() * retanguloPDF.getX() / paginaPDF.getLargura();
+        Double y = mediaBox.getHeight() * retanguloPDF.getY() / paginaPDF.getAltura();
+        Double largura = mediaBox.getWidth() * retanguloPDF.getLargura() / paginaPDF.getLargura();
+        Double altura = mediaBox.getHeight() * retanguloPDF.getAltura() / paginaPDF.getAltura();
+
+        PDFTextStripperByArea area = new PDFTextStripperByArea();
+
+        area.addRegion(retanguloPDF.getNome(), new Rectangle2D.Double(x, y, largura, altura));
+        area.extractRegions(pagina);
+
+        return area.getTextForRegion(retanguloPDF.getNome());
     }
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -216,6 +231,9 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 int status = (100 * (i + 1)) / arquivos.length;
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+
+                System.out.println(getNumeroNota(document));
+                System.out.println("===========================");
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
                         "Erro!", JOptionPane.ERROR_MESSAGE);
