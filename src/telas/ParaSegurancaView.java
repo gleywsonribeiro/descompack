@@ -9,10 +9,13 @@ import exception.NegocioException;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import modelo.Conversor;
 import modelo.PaginaPDF;
 import modelo.RetanguloPDF;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -196,44 +199,33 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_buscarDestino
 
-    private String getNumeroNota(PDDocument document) {
-        try {
-            PDPage page = document.getPage(0);
-
-            PaginaPDF pdf = new PaginaPDF(8.23, 11.63);
-            RetanguloPDF campo = new RetanguloPDF("NF", 4.77, 0.58, 1.1, 0.2);
-
-           return getCampoTextoPDF(page, pdf, campo);
-        } catch (IOException e) {
-            throw new NegocioException("Erro ao extrair numero de nota: " + e.getMessage());
-        }
-    }
-
-    private String getCampoTextoPDF(PDPage pagina, PaginaPDF paginaPDF, RetanguloPDF retanguloPDF) throws IOException {
-        PDRectangle mediaBox = pagina.getMediaBox();
-
-        Double x = mediaBox.getWidth() * retanguloPDF.getX() / paginaPDF.getLargura();
-        Double y = mediaBox.getHeight() * retanguloPDF.getY() / paginaPDF.getAltura();
-        Double largura = mediaBox.getWidth() * retanguloPDF.getLargura() / paginaPDF.getLargura();
-        Double altura = mediaBox.getHeight() * retanguloPDF.getAltura() / paginaPDF.getAltura();
-
-        PDFTextStripperByArea area = new PDFTextStripperByArea();
-
-        area.addRegion(retanguloPDF.getNome(), new Rectangle2D.Double(x, y, largura, altura));
-        area.extractRegions(pagina);
-
-        return area.getTextForRegion(retanguloPDF.getNome());
-    }
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        PaginaPDF pagina = new PaginaPDF(209.05, 296.79);
+
+        List<RetanguloPDF> campos = Arrays.asList(
+                new RetanguloPDF("NF", 121.73, 13.70, 17.86, 4.8),
+                new RetanguloPDF("Data", 121.89, 22.96, 17.0, 4.89),
+                new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
+                new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
+                new RetanguloPDF("CNPJ", 65.58, 48.88, 30.17, 4.62),
+                new RetanguloPDF("Valor", 120.38, 207.96, 21.24, 6.17),
+                new RetanguloPDF("IR", 140.55, 203.20, 12.93, 5.22),
+                new RetanguloPDF("INSS", 101.0, 202.74, 15.09, 4.5),
+                new RetanguloPDF("PIS", 27.56, 202.74, 12.16, 4.5),
+                new RetanguloPDF("Cofins", 64.65, 202.74, 12.16, 4.5),
+                new RetanguloPDF("CSLL", 177.49, 202.74, 12.16, 4.5),
+                new RetanguloPDF("ISS", 184.0, 217.52, 15.09, 4.5)
+        );
+
         for (int i = 0; i < arquivos.length; i++) {
             try (PDDocument document = PDDocument.load(arquivos[i])) {
                 int status = (100 * (i + 1)) / arquivos.length;
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-                System.out.println(getNumeroNota(document));
-                System.out.println("===========================");
+                Conversor conversor = new Conversor(pagina, campos, document);
+
+                System.out.println(conversor.getCamposTexto());
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
                         "Erro!", JOptionPane.ERROR_MESSAGE);
