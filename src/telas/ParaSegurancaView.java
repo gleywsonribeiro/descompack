@@ -8,10 +8,14 @@ package telas;
 import exception.NegocioException;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -27,6 +31,10 @@ import org.apache.pdfbox.pdmodel.common.COSObjectable;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 
 /**
  *
@@ -56,12 +64,10 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         jDialog1 = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         barraStatus = new javax.swing.JProgressBar();
-        txtDestino = new javax.swing.JTextField();
-        txtOrigem = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textArea = new javax.swing.JTextArea();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -78,22 +84,12 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         setMaximizable(true);
         setTitle("Exportar Arquivos");
 
-        jLabel1.setText("Selecione os arquivos para Importação");
+        jLabel1.setText("Selecione os arquivos");
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        jLabel2.setText("Escolha a pasta de Destino:");
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
-        jButton2.setEnabled(false);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buscarDestino(evt);
             }
         });
 
@@ -110,58 +106,41 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         barraStatus.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         barraStatus.setStringPainted(true);
 
-        txtDestino.setEditable(false);
-
-        txtOrigem.setEditable(false);
+        textArea.setColumns(20);
+        textArea.setRows(5);
+        jScrollPane1.setViewportView(textArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(barraStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton3)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
+                    .addComponent(barraStatus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton2)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtOrigem, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                            .addComponent(txtDestino))))
+                            .addComponent(jButton3))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jButton1))
-                        .addGap(4, 4, 4))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(txtOrigem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2)
-                        .addComponent(jButton2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jButton1))
+                .addGap(4, 4, 4)
                 .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(barraStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -183,25 +162,12 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
             arquivos = chooserArquivo.getSelectedFiles();
-            String caminho = arquivos[0].getAbsolutePath();
-            txtOrigem.setText(caminho);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void buscarDestino(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscarDestino
-        JFileChooser chooserDiretorio = new JFileChooser();
-        chooserDiretorio.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int escolha = chooserDiretorio.showOpenDialog(getParent());
-        diretorio = chooserDiretorio.getSelectedFile();
-        if (escolha == JFileChooser.APPROVE_OPTION) {
-            txtDestino.setText(diretorio.getAbsolutePath());
-        }
-    }//GEN-LAST:event_buscarDestino
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         PaginaPDF pagina = new PaginaPDF(209.05, 296.79);
-
         List<RetanguloPDF> campos = Arrays.asList(
                 new RetanguloPDF("NF", 121.73, 13.70, 17.86, 4.8),
                 new RetanguloPDF("Data", 121.89, 22.96, 17.0, 4.89),
@@ -217,6 +183,23 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 new RetanguloPDF("ISS", 184.0, 217.52, 15.09, 4.5)
         );
 
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet("NF");
+
+        int linha = 1;
+        //---   CABEÇALHO
+        List<String> cabecalhos = Arrays.asList(
+                "NF", "EMISSÃO", "UNIDADE", "MUNICÍPIO", "CNPJ", "VALOR",
+                "IR", "INSS", "PIS", "COFINS",
+                "CSLL", "ISS");
+
+        Row linhaCabecalho = sheet.createRow(linha - 1);
+        int colunaCabecalho = 0;
+        for (String cabecalho : cabecalhos) {
+            Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
+            celula.setCellValue(cabecalho);
+        }
+
         for (int i = 0; i < arquivos.length; i++) {
             try (PDDocument document = PDDocument.load(arquivos[i])) {
                 int status = (100 * (i + 1)) / arquivos.length;
@@ -224,62 +207,70 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
                 Conversor conversor = new Conversor(pagina, campos, document);
+                textArea.setText(textArea.getText() + arquivos[i].getAbsolutePath() + "\n");
 
-                System.out.println(conversor.getCamposTexto());
+                int coluna = 0;
+
+                Row linhaNota = sheet.createRow(linha++);
+                for (String campo : conversor.getCamposTexto()) {
+                    Cell celula = linhaNota.createCell(coluna++);
+                    celula.setCellValue(campo);
+                }
+
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
                         "Erro!", JOptionPane.ERROR_MESSAGE);
             }
         }
-//        try (PDDocument document = PDDocument.load(file)) {
-//            int numeroPaginas = document.getNumberOfPages();
-//            Splitter splitter = new Splitter();
-//
-//            List<PDDocument> pages = splitter.split(document);
-//
-//            Iterator<PDDocument> iterator = pages.iterator();
-//            int i = 0;
-//
-//            while (iterator.hasNext()) {
-//                try (PDDocument pdd = iterator.next()) {
-//                    i++;
-//
-//                    int status = (100 * i) / numeroPaginas;
-//                    barraStatus.setValue(status);
-//                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
-//
-//                    pdd.save(diretorio.getAbsolutePath() + "\\" + getNumeroNota(pdd) + ".pdf");
-//
-//                }
-//            }
-//
-//            JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
-//                    "Êxito", JOptionPane.INFORMATION_MESSAGE);
-//        } catch (IOException ex) {
-//            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
-//                    "Erro!", JOptionPane.ERROR_MESSAGE);
-//            ex.printStackTrace();
-//        } catch (NullPointerException ex) {
-//            JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
-//                    "Erro!", JOptionPane.ERROR_MESSAGE);
-//            ex.printStackTrace();
-//        } catch (Exception ex) {
-//            JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
-//                    "Erro!", JOptionPane.ERROR_MESSAGE);
-//            ex.printStackTrace();
-//        }
+
+        autoSizeColumns(workbook);
+        
+        System.out.println(arquivos[0].getParent());
+
+        try (FileOutputStream stream = new FileOutputStream(new File(arquivos[0].getParent() + "\\" + "Notas Fiscais" + ".xls"))) {
+            workbook.write(stream);
+
+            stream.flush();
+            JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
+                    "Êxito", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
+                    "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } catch (NullPointerException ex) {
+            JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
+                    "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
+                    "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void autoSizeColumns(HSSFWorkbook workbook) {
+        int numberOfSheets = workbook.getNumberOfSheets();
+        for (int i = 0; i < numberOfSheets; i++) {
+            HSSFSheet sheet = workbook.getSheetAt(i);
+            if (sheet.getPhysicalNumberOfRows() > 0) {
+                Row row = sheet.getRow(sheet.getFirstRowNum());
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    int columnIndex = cell.getColumnIndex();
+                    sheet.autoSizeColumn(columnIndex);
+                }
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar barraStatus;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField txtDestino;
-    private javax.swing.JTextField txtOrigem;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea textArea;
     // End of variables declaration//GEN-END:variables
 }

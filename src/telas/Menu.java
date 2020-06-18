@@ -39,8 +39,6 @@ public class Menu extends javax.swing.JFrame {
         desktopPane = new javax.swing.JDesktopPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu4 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -53,24 +51,6 @@ public class Menu extends javax.swing.JFrame {
         desktopPane.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.darcula.selection.color1"));
 
         jMenu4.setText("Notas Fiscais");
-
-        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/file.png"))); // NOI18N
-        jMenuItem1.setText("Separar Notas");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
-            }
-        });
-        jMenu4.add(jMenuItem1);
-
-        jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/excel.png"))); // NOI18N
-        jMenuItem2.setText("Exportar Excel");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
-            }
-        });
-        jMenu4.add(jMenuItem2);
         jMenu4.add(jSeparator1);
 
         jMenuItem3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/para-icon.PNG"))); // NOI18N
@@ -84,6 +64,7 @@ public class Menu extends javax.swing.JFrame {
 
         jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/new-icon.PNG"))); // NOI18N
         jMenuItem4.setText("New Line");
+        jMenuItem4.setEnabled(false);
         jMenu4.add(jMenuItem4);
 
         jMenuBar1.add(jMenu4);
@@ -121,23 +102,6 @@ public class Menu extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_jMenu3MouseClicked
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        TelaDivideArquivo da = new TelaDivideArquivo();
-        Dimension dimension = desktopPane.getSize();
-        da.setSize(dimension);
-        desktopPane.add(da);
-        da.setVisible(true);
-
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
-
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        ExportaArquivo ea = new ExportaArquivo();
-        Dimension dimension = desktopPane.getSize();
-        ea.setSize(dimension);
-        desktopPane.add(ea);
-        ea.setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
-
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
        ParaSegurancaView view = new ParaSegurancaView();
         Dimension dimension = desktopPane.getSize();
@@ -164,8 +128,6 @@ public class Menu extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JPopupMenu.Separator jSeparator1;
