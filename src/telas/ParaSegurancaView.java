@@ -5,8 +5,6 @@
  */
 package telas;
 
-import exception.NegocioException;
-import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,8 +12,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -23,17 +19,14 @@ import modelo.Conversor;
 import modelo.PaginaPDF;
 import modelo.RetanguloPDF;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
-import org.apache.pdfbox.pdmodel.PDDocumentNameDictionary;
-import org.apache.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.COSObjectable;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
-import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
@@ -106,6 +99,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         barraStatus.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         barraStatus.setStringPainted(true);
 
+        textArea.setEditable(false);
         textArea.setColumns(20);
         textArea.setRows(5);
         jScrollPane1.setViewportView(textArea);
@@ -133,10 +127,13 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jButton1))
-                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(4, 4, 4))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
@@ -162,6 +159,9 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
             arquivos = chooserArquivo.getSelectedFiles();
+            for (File arquivo : arquivos) {
+                textArea.setText(textArea.getText() + arquivo.getAbsolutePath() + "\n");
+            }
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -173,7 +173,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 new RetanguloPDF("Data", 121.89, 22.96, 17.0, 4.89),
                 new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
                 new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
-                new RetanguloPDF("CNPJ", 65.58, 48.88, 30.17, 4.62),
+                new RetanguloPDF("CNPJ", 44.55, 75.95, 29.92, 3.65),
                 new RetanguloPDF("Valor", 120.38, 207.96, 21.24, 6.17),
                 new RetanguloPDF("IR", 140.55, 203.20, 12.93, 5.22),
                 new RetanguloPDF("INSS", 101.0, 202.74, 15.09, 4.5),
@@ -191,13 +191,21 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         List<String> cabecalhos = Arrays.asList(
                 "NF", "EMISSÃO", "UNIDADE", "MUNICÍPIO", "CNPJ", "VALOR",
                 "IR", "INSS", "PIS", "COFINS",
-                "CSLL", "ISS");
+                "CSLL", "ISS", "ZONA");
 
         Row linhaCabecalho = sheet.createRow(linha - 1);
         int colunaCabecalho = 0;
         for (String cabecalho : cabecalhos) {
             Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
             celula.setCellValue(cabecalho);
+
+            CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+            Font font = sheet.getWorkbook().createFont();
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+            cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
+            cellStyle.setFont(font);
+            celula.setCellStyle(cellStyle);
         }
 
         for (int i = 0; i < arquivos.length; i++) {
@@ -207,15 +215,27 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
                 Conversor conversor = new Conversor(pagina, campos, document);
-                textArea.setText(textArea.getText() + arquivos[i].getAbsolutePath() + "\n");
+                
+                List<String> dados = conversor.getCamposTexto();
 
                 int coluna = 0;
 
                 Row linhaNota = sheet.createRow(linha++);
-                for (String campo : conversor.getCamposTexto()) {
+                
+                for (int j = 0; j < dados.size(); j++) {
                     Cell celula = linhaNota.createCell(coluna++);
-                    celula.setCellValue(campo);
+                    if (j >= 5) {
+                        celula.setCellType(Cell.CELL_TYPE_NUMERIC);
+                        Double value = Double.parseDouble(dados.get(j).replace(".", "").replace(",", "."));
+
+                        celula.setCellValue(value);
+
+                    } else {
+                        celula.setCellValue(dados.get(j));
+                    }
                 }
+                Cell cell = linhaNota.createCell(coluna++);
+                cell.setCellValue(Conversor.getZona().get(dados.get(i)));
 
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
@@ -224,10 +244,8 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         }
 
         autoSizeColumns(workbook);
-        
-        System.out.println(arquivos[0].getParent());
 
-        try (FileOutputStream stream = new FileOutputStream(new File(arquivos[0].getParent() + "\\" + "Notas Fiscais" + ".xls"))) {
+        try (FileOutputStream stream = new FileOutputStream(new File(arquivos[0].getParent() + "\\" + "Notas Fiscais - Pará Segurança" + ".xls"))) {
             workbook.write(stream);
 
             stream.flush();
