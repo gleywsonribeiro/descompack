@@ -244,6 +244,9 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
                         "Erro!", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao processar: " + ex.getMessage(),
+                        "Erro!", JOptionPane.ERROR_MESSAGE);
             }
         }
 
