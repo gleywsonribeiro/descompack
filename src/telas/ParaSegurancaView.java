@@ -226,7 +226,11 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                     Cell celula = linhaNota.createCell(coluna++);
                     if (j >= 5) {
                         celula.setCellType(Cell.CELL_TYPE_NUMERIC);
-                        Double value = Double.parseDouble(dados.get(j).replace(".", "").replace(",", "."));
+                        Double value = Double.parseDouble(dados.get(j)
+                                .replace(".", "")
+                                .replace(" ", "")
+                                .replace("$", "")
+                                .replace(",", "."));
 
                         celula.setCellValue(value);
 
@@ -235,7 +239,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                     }
                 }
                 Cell cell = linhaNota.createCell(coluna++);
-                cell.setCellValue(Conversor.getZona().get(dados.get(i)));
+                cell.setCellValue(Conversor.getZona().get(dados.get(4)));
 
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
