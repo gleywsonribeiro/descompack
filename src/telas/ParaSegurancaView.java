@@ -19,6 +19,7 @@ import modelo.Conversor;
 import modelo.PaginaPDF;
 import modelo.RetanguloPDF;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -174,13 +175,16 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
                 new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
                 new RetanguloPDF("CNPJ", 44.55, 75.95, 29.92, 3.65),
-                new RetanguloPDF("Valor", 120.38, 207.96, 21.24, 6.17),
-                new RetanguloPDF("IR", 140.55, 203.20, 12.93, 5.22),
-                new RetanguloPDF("INSS", 101.0, 202.74, 15.09, 4.5),
-                new RetanguloPDF("PIS", 27.56, 202.74, 12.16, 4.5),
-                new RetanguloPDF("Cofins", 64.65, 202.74, 12.16, 4.5),
-                new RetanguloPDF("CSLL", 177.49, 202.74, 12.16, 4.5),
-                new RetanguloPDF("ISS", 184.0, 217.52, 15.09, 4.5)
+                new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
+                new RetanguloPDF("Recolhimento", 55.02, 245.52, 63.54, 4.44),
+                new RetanguloPDF("Tributação", 55.02, 238.05, 63.54, 4.44),
+                new RetanguloPDF("Valor", 10.47, 207.85, 188.74, 5.96),
+                new RetanguloPDF("IR", 125.12, 203.20, 37.04, 5.22),
+                new RetanguloPDF("INSS", 87.37, 202.74, 37.04, 4.5),
+                new RetanguloPDF("PIS", 10.47, 202.74, 37.04, 4.5),
+                new RetanguloPDF("Cofins", 49.51, 202.74, 37.04, 4.5),
+                new RetanguloPDF("CSLL", 163.18, 202.74, 37.04, 4.5),
+                new RetanguloPDF("ISS", 153.46, 217.52, 44.8, 4.5)
         );
 
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -189,7 +193,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         int linha = 1;
         //---   CABEÇALHO
         List<String> cabecalhos = Arrays.asList(
-                "NF", "EMISSÃO", "UNIDADE", "MUNICÍPIO", "CNPJ", "VALOR",
+                "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR",
                 "IR", "INSS", "PIS", "COFINS",
                 "CSLL", "ISS", "ZONA");
 
@@ -215,25 +219,34 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
                 Conversor conversor = new Conversor(pagina, campos, document);
-                
+
                 List<String> dados = conversor.getCamposTexto();
 
                 int coluna = 0;
 
                 Row linhaNota = sheet.createRow(linha++);
-                
+
                 for (int j = 0; j < dados.size(); j++) {
                     Cell celula = linhaNota.createCell(coluna++);
-                    if (j >= 5) {
+                    if (j >= 8) {
+                        if(j == 8) {
+                            dados.set(j, dados.get(j).split("=")[1]);
+                        }
                         celula.setCellType(Cell.CELL_TYPE_NUMERIC);
                         Double value = Double.parseDouble(dados.get(j)
                                 .replace(".", "")
                                 .replace(" ", "")
                                 .replace("$", "")
+                                .replace("R", "")
                                 .replace(",", "."));
 
-                        celula.setCellValue(value);
+                        HSSFCellStyle style = workbook.createCellStyle();
+                        style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
 
+                        celula.setCellValue(value);
+                        celula.setCellStyle(style);
+                    } else if (j == 0) {
+                        celula.setCellValue(Integer.parseInt(dados.get(j)));
                     } else {
                         celula.setCellValue(dados.get(j));
                     }
@@ -259,17 +272,14 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
+            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 

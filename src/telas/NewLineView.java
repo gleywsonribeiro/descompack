@@ -5,39 +5,44 @@
  */
 package telas;
 
-import exception.NegocioException;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import modelo.Conversor;
+import modelo.PaginaPDF;
+import modelo.RetanguloPDF;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 
 /**
  *
  * @author Gleywson
  */
-public class ExportaArquivo extends javax.swing.JInternalFrame {
+public class NewLineView extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form TelaDivideArquivo
      */
-    private File file;
-    private File diretorio;
+    private File arquivo;
 
-    public ExportaArquivo() {
+    public NewLineView() {
         initComponents();
     }
 
@@ -53,12 +58,10 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
         jDialog1 = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         barraStatus = new javax.swing.JProgressBar();
-        txtDestino = new javax.swing.JTextField();
-        txtOrigem = new javax.swing.JTextField();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textArea = new javax.swing.JTextArea();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -73,23 +76,14 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setMaximizable(true);
-        setTitle("Exportar arquivo para Excel");
+        setTitle("Exportar Arquivos");
 
-        jLabel1.setText("Escolher Arquivo:");
+        jLabel1.setText("Selecione os arquivos");
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        jLabel2.setText("Escolha a pasta de Destino:");
-
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/buscar.png"))); // NOI18N
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
             }
         });
 
@@ -106,35 +100,28 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
         barraStatus.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         barraStatus.setStringPainted(true);
 
-        txtDestino.setEditable(false);
-
-        txtOrigem.setEditable(false);
+        textArea.setEditable(false);
+        textArea.setColumns(20);
+        textArea.setRows(5);
+        jScrollPane1.setViewportView(textArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(barraStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton3)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
+                    .addComponent(barraStatus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton2)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtOrigem, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                            .addComponent(txtDestino))))
+                            .addComponent(jButton3))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -143,24 +130,20 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jButton1))
+                        .addComponent(jButton1)
                         .addGap(4, 4, 4))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(txtOrigem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel2)
-                        .addComponent(jButton2)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(barraStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        getAccessibleContext().setAccessibleName("paraSeguranca");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -168,48 +151,21 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser chooserArquivo = new JFileChooser();
         chooserArquivo.setFileFilter(new FileNameExtensionFilter("Arquivo PDF (*.pdf)", "pdf"));
-        chooserArquivo.setApproveButtonText("Selecione o arquivo");
+        chooserArquivo.setMultiSelectionEnabled(false);
+        chooserArquivo.setApproveButtonText("Selecione o arquivos");
         chooserArquivo.setDialogTitle("Seletor de Notas Fiscais");
         //Configura a possíbilidade de selecionar vários arquivos
         chooserArquivo.setAcceptAllFileFilterUsed(false);
 
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
-            file = chooserArquivo.getSelectedFile();
-            String caminho = file.getAbsolutePath();
-            txtOrigem.setText(caminho);
+            arquivo = chooserArquivo.getSelectedFile();
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        JFileChooser chooserDiretorio = new JFileChooser();
-        chooserDiretorio.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int escolha = chooserDiretorio.showOpenDialog(getParent());
-        diretorio = chooserDiretorio.getSelectedFile();
-        if (escolha == JFileChooser.APPROVE_OPTION) {
-            txtDestino.setText(diretorio.getAbsolutePath());
-        }
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void autoSizeColumns(HSSFWorkbook workbook) {
-        int numberOfSheets = workbook.getNumberOfSheets();
-        for (int i = 0; i < numberOfSheets; i++) {
-            HSSFSheet sheet = workbook.getSheetAt(i);
-            if (sheet.getPhysicalNumberOfRows() > 0) {
-                Row row = sheet.getRow(sheet.getFirstRowNum());
-                Iterator<Cell> cellIterator = row.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    int columnIndex = cell.getColumnIndex();
-                    sheet.autoSizeColumn(columnIndex);
-                }
-            }
-        }
-    }
-
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        try (PDDocument document = PDDocument.load(file)) {
+        try (PDDocument document = PDDocument.load(arquivo)) {
             int numeroPaginas = document.getNumberOfPages();
             Splitter splitter = new Splitter();
 
@@ -256,11 +212,13 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
                     Cell celula = linhaNota.createCell(coluna++);
                     celula.setCellValue(valor);
                 }
+
+                pdd.save(arquivo.getParent() + "\\" + "new_line " + pagina + ".pdf");
             }
 
             autoSizeColumns(workbook);
 
-            try (FileOutputStream stream = new FileOutputStream(new File(diretorio.getAbsolutePath() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
+            try (FileOutputStream stream = new FileOutputStream(new File(arquivo.getParent() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
                 workbook.write(stream);
 
                 stream.flush();
@@ -269,7 +227,7 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo",
+            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
@@ -280,16 +238,29 @@ public class ExportaArquivo extends javax.swing.JInternalFrame {
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void autoSizeColumns(HSSFWorkbook workbook) {
+        int numberOfSheets = workbook.getNumberOfSheets();
+        for (int i = 0; i < numberOfSheets; i++) {
+            HSSFSheet sheet = workbook.getSheetAt(i);
+            if (sheet.getPhysicalNumberOfRows() > 0) {
+                Row row = sheet.getRow(sheet.getFirstRowNum());
+                Iterator<Cell> cellIterator = row.cellIterator();
+                while (cellIterator.hasNext()) {
+                    Cell cell = cellIterator.next();
+                    int columnIndex = cell.getColumnIndex();
+                    sheet.autoSizeColumn(columnIndex);
+                }
+            }
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar barraStatus;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JTextField txtDestino;
-    private javax.swing.JTextField txtOrigem;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea textArea;
     // End of variables declaration//GEN-END:variables
 }

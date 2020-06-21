@@ -64,7 +64,11 @@ public class Menu extends javax.swing.JFrame {
 
         jMenuItem4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagens/new-icon.PNG"))); // NOI18N
         jMenuItem4.setText("New Line");
-        jMenuItem4.setEnabled(false);
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         jMenu4.add(jMenuItem4);
 
         jMenuBar1.add(jMenu4);
@@ -103,12 +107,20 @@ public class Menu extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu3MouseClicked
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-       ParaSegurancaView view = new ParaSegurancaView();
+        ParaSegurancaView view = new ParaSegurancaView();
         Dimension dimension = desktopPane.getSize();
         view.setSize(dimension);
         desktopPane.add(view);
         view.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        NewLineView view = new NewLineView();
+        Dimension dimension = desktopPane.getSize();
+        view.setSize(dimension);
+        desktopPane.add(view);
+        view.setVisible(true);
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     public void setImageIcon(JFrame frame) {
         try {
@@ -118,7 +130,7 @@ public class Menu extends javax.swing.JFrame {
                     "Atenção!", JOptionPane.WARNING_MESSAGE);
         }
     }
-    
+
     /**
      * @param args the command line arguments
      */

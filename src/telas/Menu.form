@@ -28,8 +28,10 @@
                   <Image iconType="3" name="/imagens/new-icon.PNG"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="New Line"/>
-                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem4ActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
