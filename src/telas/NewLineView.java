@@ -21,6 +21,7 @@ import modelo.RetanguloPDF;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -179,14 +180,44 @@ public class NewLineView extends javax.swing.JInternalFrame {
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet("NF");
 
+            PaginaPDF paginaPDF = new PaginaPDF(209.05, 296.79);
+            List<RetanguloPDF> campos = Arrays.asList(
+                    new RetanguloPDF("NF", 0.0, 0.0, 0.0, 0.0),
+                    new RetanguloPDF("Data", 0.0, 0.0, 0.0, 0.0),
+                    new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
+                    new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
+                    new RetanguloPDF("CNPJ", 44.55, 75.95, 29.92, 3.65),
+                    new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
+                    new RetanguloPDF("Recolhimento", 55.02, 245.52, 63.54, 4.44),
+                    new RetanguloPDF("Tributação", 55.02, 238.05, 63.54, 4.44),
+                    new RetanguloPDF("Valor", 10.47, 207.85, 188.74, 5.96),
+                    new RetanguloPDF("IR", 125.12, 203.20, 37.04, 5.22),
+                    new RetanguloPDF("INSS", 87.37, 202.74, 37.04, 4.5),
+                    new RetanguloPDF("PIS", 10.47, 202.74, 37.04, 4.5),
+                    new RetanguloPDF("Cofins", 49.51, 202.74, 37.04, 4.5),
+                    new RetanguloPDF("CSLL", 163.18, 202.74, 37.04, 4.5),
+                    new RetanguloPDF("ISS", 153.46, 217.52, 44.8, 4.5)
+            );
+
             //---   CABEÇALHO
-            List<String> cabecalho = Arrays.asList("UNIDADE", "MUNICÍPIO", "CNPJ", "EMISSÃO", "NF", "VALOR", "SERVIÇO PRESTADO", "NÃO IDENTIFICADO", "COFINS", "PIS", "INSS", "IRRF", "CSLL", "ISS");
+            List<String> cabecalhos = Arrays.asList(
+                    "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR",
+                    "IR", "INSS", "PIS", "COFINS",
+                    "CSLL", "ISS");
 
             Row linhaCabecalho = sheet.createRow(linha - 1);
             int colunaCabecalho = 0;
-            for (String nome : cabecalho) {
+            for (String cabecalho : cabecalhos) {
                 Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
-                celula.setCellValue(nome);
+                celula.setCellValue(cabecalho);
+
+                CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+                Font font = sheet.getWorkbook().createFont();
+                font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+                cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
+                cellStyle.setFont(font);
+                celula.setCellStyle(cellStyle);
             }
 
             while (iterator.hasNext()) {
@@ -197,23 +228,39 @@ public class NewLineView extends javax.swing.JInternalFrame {
                 barraStatus.setValue(status);
                 barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
+                Conversor conversor = new Conversor(paginaPDF, campos, document);
+                List<String> dados = conversor.getCamposTexto();
+
                 Row linhaNota = sheet.createRow(linha++);
-
-                String[] texto = new PDFTextStripper().getText(pdd).split("\n");
-
-                List<String> body = Arrays.asList(texto[17], texto[40], texto[59],
-                        texto[56], texto[58], texto[45], texto[71], "773909900",
-                        texto[23], texto[23],
-                        texto[68], texto[68],
-                        texto[68], "0");
-
                 int coluna = 0;
-                for (String valor : body) {
+
+                for (int j = 0; j < dados.size(); j++) {
                     Cell celula = linhaNota.createCell(coluna++);
-                    celula.setCellValue(valor);
+                    if (j >= 8) {
+                        if (j == 8) {
+                            dados.set(j, dados.get(j).split("=")[1]);
+                        }
+                        celula.setCellType(Cell.CELL_TYPE_NUMERIC);
+                        Double value = Double.parseDouble(dados.get(j)
+                                .replace(".", "")
+                                .replace(" ", "")
+                                .replace("$", "")
+                                .replace("R", "")
+                                .replace(",", "."));
+
+                        HSSFCellStyle style = workbook.createCellStyle();
+                        style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                        celula.setCellValue(value);
+                        celula.setCellStyle(style);
+                    } else if (j == 0) {
+                        celula.setCellValue(Integer.parseInt(dados.get(j)));
+                    } else {
+                        celula.setCellValue(dados.get(j));
+                    }
                 }
 
-                pdd.save(arquivo.getParent() + "\\" + "new_line " + pagina + ".pdf");
+                pdd.save(arquivo.getParent() + "\\" + dados.get(0) + ".pdf");
             }
 
             autoSizeColumns(workbook);
