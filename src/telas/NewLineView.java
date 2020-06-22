@@ -63,6 +63,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
         barraStatus = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         textArea = new javax.swing.JTextArea();
+        lblPath = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
         jDialog1.getContentPane().setLayout(jDialog1Layout);
@@ -77,7 +78,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setMaximizable(true);
-        setTitle("Exportar Arquivos");
+        setTitle("New Line");
 
         jLabel1.setText("Selecione os arquivos");
 
@@ -116,12 +117,14 @@ public class NewLineView extends javax.swing.JInternalFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE)
                     .addComponent(barraStatus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton1))
-                            .addComponent(jButton3))
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblPath)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -130,11 +133,15 @@ public class NewLineView extends javax.swing.JInternalFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(4, 4, 4))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(jLabel1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jButton1)
+                            .addGap(4, 4, 4)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(lblPath)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -161,6 +168,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
             arquivo = chooserArquivo.getSelectedFile();
+            lblPath.setText(arquivo.getAbsolutePath());
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
@@ -180,23 +188,22 @@ public class NewLineView extends javax.swing.JInternalFrame {
             HSSFWorkbook workbook = new HSSFWorkbook();
             HSSFSheet sheet = workbook.createSheet("NF");
 
-            PaginaPDF paginaPDF = new PaginaPDF(209.05, 296.79);
+            PaginaPDF paginaPDF = new PaginaPDF(209.89, 297.06);
             List<RetanguloPDF> campos = Arrays.asList(
-                    new RetanguloPDF("NF", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Data", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
-                    new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
-                    new RetanguloPDF("CNPJ", 44.55, 75.95, 29.92, 3.65),
+                    new RetanguloPDF("NF", 133.16, 7.28, 17.99, 5.5),
+                    new RetanguloPDF("Data", 133.16, 13.78, 17.99, 4.26),
+                    new RetanguloPDF("Unidade", 18.33, 105.24, 200.00, 4.5),
+                    new RetanguloPDF("Município", 46.14, 78.0, 80.0, 5.5),
+                    new RetanguloPDF("CNPJ", 46.14, 63.92, 35.00, 3.65),
                     new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Recolhimento", 55.02, 245.52, 63.54, 4.44),
-                    new RetanguloPDF("Tributação", 55.02, 238.05, 63.54, 4.44),
-                    new RetanguloPDF("Valor", 10.47, 207.85, 188.74, 5.96),
-                    new RetanguloPDF("IR", 125.12, 203.20, 37.04, 5.22),
-                    new RetanguloPDF("INSS", 87.37, 202.74, 37.04, 4.5),
-                    new RetanguloPDF("PIS", 10.47, 202.74, 37.04, 4.5),
-                    new RetanguloPDF("Cofins", 49.51, 202.74, 37.04, 4.5),
-                    new RetanguloPDF("CSLL", 163.18, 202.74, 37.04, 4.5),
-                    new RetanguloPDF("ISS", 153.46, 217.52, 44.8, 4.5)
+                    new RetanguloPDF("Recolhimento", 0.0, 0.0, 0.0, 0.0),
+                    new RetanguloPDF("Tributação", 0.0, 0.0, 0.0, 0.0),
+                    new RetanguloPDF("Valor", 157.28, 232.64, 38.19, 10.32),
+                    new RetanguloPDF("IR", 142.81, 183.29, 24.19, 4.4),
+                    new RetanguloPDF("INSS", 114.0, 183.29, 24.19, 4.4),
+                    new RetanguloPDF("PIS", 87.48, 183.29, 24.19, 4.4),
+                    new RetanguloPDF("Cofins", 60.5, 183.29, 24.19, 4.4),
+                    new RetanguloPDF("CSLL", 168.11, 183.29, 24.19, 4.4)
             );
 
             //---   CABEÇALHO
@@ -221,67 +228,77 @@ public class NewLineView extends javax.swing.JInternalFrame {
             }
 
             while (iterator.hasNext()) {
-                PDDocument pdd = iterator.next();
-                pagina++;
+                try (PDDocument pdd = iterator.next()) {
 
-                int status = (100 * pagina) / numeroPaginas;
-                barraStatus.setValue(status);
-                barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+                    pagina++;
 
-                Conversor conversor = new Conversor(paginaPDF, campos, document);
-                List<String> dados = conversor.getCamposTexto();
+                    int status = (100 * pagina) / numeroPaginas;
+                    barraStatus.setValue(status);
+                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
 
-                Row linhaNota = sheet.createRow(linha++);
-                int coluna = 0;
+                    Conversor conversor = new Conversor(paginaPDF, campos, pdd);
+                    List<String> dados = conversor.getCamposTexto();
 
-                for (int j = 0; j < dados.size(); j++) {
-                    Cell celula = linhaNota.createCell(coluna++);
-                    if (j >= 8) {
-                        if (j == 8) {
-                            dados.set(j, dados.get(j).split("=")[1]);
+                    Row linhaNota = sheet.createRow(linha++);
+                    int coluna = 0;
+
+                    for (int j = 0; j < dados.size(); j++) {
+                        Cell celula = linhaNota.createCell(coluna++);
+                        if (j >= 8) {
+                            celula.setCellType(Cell.CELL_TYPE_NUMERIC);
+                            Double value = Double.parseDouble(dados.get(j)
+                                    .replace(".", "")
+                                    .replace(" ", "")
+                                    .replace("$", "")
+                                    .replace("R", "")
+                                    .replace(",", "."));
+
+                            HSSFCellStyle style = workbook.createCellStyle();
+                            style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                            celula.setCellValue(value);
+                            celula.setCellStyle(style);
+                        } else if (j == 0) {
+                            celula.setCellValue(Integer.parseInt(dados.get(j)));
+                        } else {
+                            celula.setCellValue(dados.get(j));
                         }
-                        celula.setCellType(Cell.CELL_TYPE_NUMERIC);
-                        Double value = Double.parseDouble(dados.get(j)
-                                .replace(".", "")
-                                .replace(" ", "")
-                                .replace("$", "")
-                                .replace("R", "")
-                                .replace(",", "."));
-
-                        HSSFCellStyle style = workbook.createCellStyle();
-                        style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
-
-                        celula.setCellValue(value);
-                        celula.setCellStyle(style);
-                    } else if (j == 0) {
-                        celula.setCellValue(Integer.parseInt(dados.get(j)));
-                    } else {
-                        celula.setCellValue(dados.get(j));
                     }
+
+                    HSSFCellStyle style = workbook.createCellStyle();
+                    style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                    Cell cell = linhaNota.createCell(coluna++);
+                    cell.setCellValue(0);
+                    cell.setCellStyle(style);
+
+                    textArea.append(arquivo.getParent() + "\\" + dados.get(0).trim() + ".pdf" + "\n");
+                    pdd.save(arquivo.getParent() + "\\" + dados.get(0).trim() + ".pdf");
                 }
 
-                pdd.save(arquivo.getParent() + "\\" + dados.get(0) + ".pdf");
+                autoSizeColumns(workbook);
+
             }
-
-            autoSizeColumns(workbook);
-
             try (FileOutputStream stream = new FileOutputStream(new File(arquivo.getParent() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
                 workbook.write(stream);
 
                 stream.flush();
             }
-
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -308,6 +325,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblPath;
     private javax.swing.JTextArea textArea;
     // End of variables declaration//GEN-END:variables
 }

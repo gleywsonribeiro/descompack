@@ -76,7 +76,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setMaximizable(true);
-        setTitle("Exportar Arquivos");
+        setTitle("Pará Segurança");
 
         jLabel1.setText("Selecione os arquivos");
 
