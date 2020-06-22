@@ -182,12 +182,12 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 new RetanguloPDF("Tributação", 55.02, 238.05, 63.54, 4.44),
                 new RetanguloPDF("Valor", 179.15, 129.12, 19.76, 6.54),
                 new RetanguloPDF("Coluna", 0.0, 0.0, 0.0, 0.0),
-                new RetanguloPDF("IR", 125.12, 203.20, 37.04, 5.22),
-                new RetanguloPDF("INSS", 87.37, 202.74, 37.04, 4.5),
-                new RetanguloPDF("PIS", 10.47, 202.74, 37.04, 4.5),
-                new RetanguloPDF("Cofins", 49.51, 202.74, 37.04, 4.5),
-                new RetanguloPDF("CSLL", 163.18, 202.74, 37.04, 4.5),
-                new RetanguloPDF("ISS", 153.46, 217.52, 44.8, 4.5)
+                new RetanguloPDF("IR", 125.12, 205.20, 37.04, 5.22),
+                new RetanguloPDF("INSS", 87.37, 204.74, 37.04, 4.5),
+                new RetanguloPDF("PIS", 10.47, 204.74, 37.04, 4.5),
+                new RetanguloPDF("Cofins", 49.51, 204.74, 37.04, 4.5),
+                new RetanguloPDF("CSLL", 163.18, 204.74, 37.04, 4.5),
+                new RetanguloPDF("ISS", 153.46, 220.52, 44.8, 4.5)
         );
 
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -255,7 +255,12 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                             celula.setCellValue(dados.get(j));
                         }
                     } catch (NumberFormatException e) {
-                        celula.setCellValue(dados.get(j));
+                        String valor = dados.get(j).replace("R$", "#").split("#")[1].replace(".", "")
+                                .replace(" ", "")
+                                .replace("$", "")
+                                .replace("R", "")
+                                .replace(",", ".");
+                        celula.setCellValue(Double.parseDouble(valor));
                     }
                 }
                 Cell cell = linhaNota.createCell(coluna++);
