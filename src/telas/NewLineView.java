@@ -59,7 +59,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
         jDialog1 = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btProcessar = new javax.swing.JButton();
         barraStatus = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         textArea = new javax.swing.JTextArea();
@@ -89,10 +89,11 @@ public class NewLineView extends javax.swing.JInternalFrame {
             }
         });
 
-        jButton3.setText("Processar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btProcessar.setText("Processar");
+        btProcessar.setEnabled(false);
+        btProcessar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btProcessarActionPerformed(evt);
             }
         });
 
@@ -118,7 +119,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
                     .addComponent(barraStatus, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jButton3, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btProcessar, javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -143,7 +144,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(lblPath)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(jButton3)
+                .addComponent(btProcessar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -169,11 +170,12 @@ public class NewLineView extends javax.swing.JInternalFrame {
         if (escolha == JFileChooser.APPROVE_OPTION) {
             arquivo = chooserArquivo.getSelectedFile();
             lblPath.setText(arquivo.getAbsolutePath());
+            btProcessar.setEnabled(true);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btProcessarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btProcessarActionPerformed
         try (PDDocument document = PDDocument.load(arquivo)) {
             int numeroPaginas = document.getNumberOfPages();
             Splitter splitter = new Splitter();
@@ -300,7 +302,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
                     "Erro!", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btProcessarActionPerformed
 
     private void autoSizeColumns(HSSFWorkbook workbook) {
         int numberOfSheets = workbook.getNumberOfSheets();
@@ -320,8 +322,8 @@ public class NewLineView extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar barraStatus;
+    private javax.swing.JButton btProcessar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;

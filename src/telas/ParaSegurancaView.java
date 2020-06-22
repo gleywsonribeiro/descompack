@@ -58,7 +58,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         jDialog1 = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btProcessar = new javax.swing.JButton();
         barraStatus = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         textArea = new javax.swing.JTextArea();
@@ -87,10 +87,11 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
             }
         });
 
-        jButton3.setText("Processar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btProcessar.setText("Processar");
+        btProcessar.setEnabled(false);
+        btProcessar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btProcessarActionPerformed(evt);
             }
         });
 
@@ -120,7 +121,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton1))
-                            .addComponent(jButton3))
+                            .addComponent(btProcessar))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -135,7 +136,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(jButton3)
+                .addComponent(btProcessar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -163,22 +164,24 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
             for (File arquivo : arquivos) {
                 textArea.setText(textArea.getText() + arquivo.getAbsolutePath() + "\n");
             }
+            btProcessar.setEnabled(true);
         }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btProcessarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btProcessarActionPerformed
         PaginaPDF pagina = new PaginaPDF(209.05, 296.79);
         List<RetanguloPDF> campos = Arrays.asList(
                 new RetanguloPDF("NF", 121.73, 13.70, 17.86, 4.8),
                 new RetanguloPDF("Data", 121.89, 22.96, 17.0, 4.89),
-                new RetanguloPDF("Unidade", 54.80, 232.91, 74.51, 6.77),
+                new RetanguloPDF("Unidade", 0.58, 98.68, 100.00, 2.7),
                 new RetanguloPDF("Município", 44.18, 84.05, 51.26, 4.0),
                 new RetanguloPDF("CNPJ", 44.55, 75.95, 29.92, 3.65),
                 new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
                 new RetanguloPDF("Recolhimento", 55.02, 245.52, 63.54, 4.44),
                 new RetanguloPDF("Tributação", 55.02, 238.05, 63.54, 4.44),
-                new RetanguloPDF("Valor", 10.47, 207.85, 188.74, 5.96),
+                new RetanguloPDF("Valor", 179.15, 129.12, 19.76, 6.54),
+                new RetanguloPDF("Coluna", 0.0, 0.0, 0.0, 0.0),
                 new RetanguloPDF("IR", 125.12, 203.20, 37.04, 5.22),
                 new RetanguloPDF("INSS", 87.37, 202.74, 37.04, 4.5),
                 new RetanguloPDF("PIS", 10.47, 202.74, 37.04, 4.5),
@@ -193,7 +196,7 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         int linha = 1;
         //---   CABEÇALHO
         List<String> cabecalhos = Arrays.asList(
-                "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR",
+                "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR", "COLUNA",
                 "IR", "INSS", "PIS", "COFINS",
                 "CSLL", "ISS", "ZONA");
 
@@ -228,26 +231,30 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
 
                 for (int j = 0; j < dados.size(); j++) {
                     Cell celula = linhaNota.createCell(coluna++);
-                    if (j >= 8) {
-                        if(j == 8) {
-                            dados.set(j, dados.get(j).split("=")[1]);
+                    try {
+                        if (j >= 8 && j != 9) {
+                            celula.setCellType(Cell.CELL_TYPE_NUMERIC);
+                            Double value = Double.parseDouble(dados.get(j)
+                                    .replace(".", "")
+                                    .replace(" ", "")
+                                    .replace("$", "")
+                                    .replace("R", "")
+                                    .replace(",", "."));
+
+                            HSSFCellStyle style = workbook.createCellStyle();
+                            style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                            celula.setCellValue(value);
+                            celula.setCellStyle(style);
+                        } else if (j == 0) {
+                            celula.setCellValue(Integer.parseInt(dados.get(j)));
+                        } else if (j == 2) {
+                            String agencia = dados.get(j).replace("R$", "#").split("#")[0];
+                            celula.setCellValue(agencia);
+                        } else {
+                            celula.setCellValue(dados.get(j));
                         }
-                        celula.setCellType(Cell.CELL_TYPE_NUMERIC);
-                        Double value = Double.parseDouble(dados.get(j)
-                                .replace(".", "")
-                                .replace(" ", "")
-                                .replace("$", "")
-                                .replace("R", "")
-                                .replace(",", "."));
-
-                        HSSFCellStyle style = workbook.createCellStyle();
-                        style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
-
-                        celula.setCellValue(value);
-                        celula.setCellStyle(style);
-                    } else if (j == 0) {
-                        celula.setCellValue(Integer.parseInt(dados.get(j)));
-                    } else {
+                    } catch (NumberFormatException e) {
                         celula.setCellValue(dados.get(j));
                     }
                 }
@@ -255,11 +262,13 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
                 cell.setCellValue(Conversor.getZona().get(dados.get(4)));
 
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo",
+                JOptionPane.showMessageDialog(null, "Erro ao abrir arquivo: " + ex.getMessage(),
                         "Erro!", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Erro ao processar: " + ex.getMessage(),
                         "Erro!", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
         }
 
@@ -274,14 +283,17 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (NullPointerException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
-    }//GEN-LAST:event_jButton3ActionPerformed
+    }//GEN-LAST:event_btProcessarActionPerformed
 
     private void autoSizeColumns(HSSFWorkbook workbook) {
         int numberOfSheets = workbook.getNumberOfSheets();
@@ -301,8 +313,8 @@ public class ParaSegurancaView extends javax.swing.JInternalFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar barraStatus;
+    private javax.swing.JButton btProcessar;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
