@@ -157,7 +157,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser chooserArquivo = new JFileChooser();
         chooserArquivo.setFileFilter(new FileNameExtensionFilter("Arquivo PDF (*.pdf)", "pdf"));
-        chooserArquivo.setMultiSelectionEnabled(false);
+        chooserArquivo.setMultiSelectionEnabled(true);
         chooserArquivo.setApproveButtonText("Selecione o arquivos");
         chooserArquivo.setDialogTitle("Seletor de Notas Fiscais");
         //Configura a possíbilidade de selecionar vários arquivos
@@ -165,8 +165,8 @@ public class NewLineView extends javax.swing.JInternalFrame {
 
         int escolha = chooserArquivo.showOpenDialog(getParent());
         if (escolha == JFileChooser.APPROVE_OPTION) {
-            arquivo = chooserArquivo.getSelectedFile();
-            lblPath.setText(arquivo.getAbsolutePath());
+            arquivos = chooserArquivo.getSelectedFiles();
+            lblPath.setText(arquivos[0].getAbsolutePath());
             btProcessar.setEnabled(true);
         }
 
@@ -176,7 +176,6 @@ public class NewLineView extends javax.swing.JInternalFrame {
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("NF");
 
-        int pagina = 0;
         int linha = 1;
 
         //---   CABEÇALHO
@@ -220,81 +219,99 @@ public class NewLineView extends javax.swing.JInternalFrame {
                 new RetanguloPDF("CSLL", 168.11, 183.29, 24.19, 4.4)
         );
 
-        try (PDDocument document = PDDocument.load(arquivo)) {
-            int numeroPaginas = document.getNumberOfPages();
-            Splitter splitter = new Splitter();
+        int paginaDoArquivo = 0;
 
-            List<PDDocument> pages = splitter.split(document);
+        //variaveis para controlar o status
+        int totalStatus = campos.size() * getTotalPaginas();
+        int acumuladorStatus = 1;
 
-            Iterator<PDDocument> iterator = pages.iterator();
+        for (File file : arquivos) {
+            try (PDDocument document = PDDocument.load(file)) {
+//                int numeroPaginas = document.getNumberOfPages();
 
-            while (iterator.hasNext()) {
-                try (PDDocument pdd = iterator.next()) {
 
-                    pagina++;
+                Splitter splitter = new Splitter();
 
-                    int status = (100 * pagina) / numeroPaginas;
-                    barraStatus.setValue(status);
-                    barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+                List<PDDocument> pages = splitter.split(document);
 
-                    Conversor conversor = new Conversor(paginaPDF, campos, pdd);
-                    List<String> dados = conversor.getCamposTexto();
+                Iterator<PDDocument> iterator = pages.iterator();
 
-                    Row linhaNota = sheet.createRow(linha++);
-                    int coluna = 0;
+                while (iterator.hasNext()) {
+                    try (PDDocument pdd = iterator.next()) {
 
-                    for (int j = 0; j < dados.size(); j++) {
-                        Cell celula = linhaNota.createCell(coluna++);
-                        if (j >= 8) {
-                            celula.setCellType(Cell.CELL_TYPE_NUMERIC);
-                            Double value = Double.parseDouble(dados.get(j)
-                                    .replace(".", "")
-                                    .replace(" ", "")
-                                    .replace("$", "")
-                                    .replace("R", "")
-                                    .replace(",", "."));
+                        paginaDoArquivo++;
 
-                            HSSFCellStyle style = workbook.createCellStyle();
-                            style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+//                        int status = (100 * acumuladorStatus) / totalStatus;
+//                        barraStatus.setValue(status);
+//                        barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+                        Conversor conversor = new Conversor(paginaPDF, campos, pdd);
+                        List<String> dados = conversor.getCamposTexto();
 
-                            celula.setCellValue(value);
-                            celula.setCellStyle(style);
-                        } else if (j == 0) {
-                            celula.setCellValue(Integer.parseInt(dados.get(j)));
-                        } else {
-                            celula.setCellValue(dados.get(j));
+                        Row linhaNota = sheet.createRow(linha++);
+                        int coluna = 0;
+
+                        for (int j = 0; j < dados.size(); j++) {
+                            Cell celula = linhaNota.createCell(coluna++);
+                            if (j >= 8) {
+                                celula.setCellType(Cell.CELL_TYPE_NUMERIC);
+                                Double value = Double.parseDouble(dados.get(j)
+                                        .replace(".", "")
+                                        .replace(" ", "")
+                                        .replace("$", "")
+                                        .replace("R", "")
+                                        .replace(",", "."));
+
+                                HSSFCellStyle style = workbook.createCellStyle();
+                                style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                                celula.setCellValue(value);
+                                celula.setCellStyle(style);
+                            } else if (j == 0) {
+                                celula.setCellValue(Integer.parseInt(dados.get(j)));
+                            } else {
+                                celula.setCellValue(dados.get(j));
+                            }
+
+                            int status = (100 * acumuladorStatus) / totalStatus;
+                            barraStatus.setValue(status);
+                            barraStatus.getUI().update(barraStatus.getGraphics(), barraStatus);
+                            acumuladorStatus++;
+
                         }
+
+                        HSSFCellStyle style = workbook.createCellStyle();
+                        style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+                        Cell cell = linhaNota.createCell(coluna++);
+                        cell.setCellValue(0);
+                        cell.setCellStyle(style);
+
+                        textArea.append(file.getParent() + "\\" + dados.get(0).trim() + ".pdf" + "\n");
+                        pdd.save(arquivos[0].getParent() + "\\" + dados.get(0).trim() + ".pdf");
+
+                        
                     }
 
-                    HSSFCellStyle style = workbook.createCellStyle();
-                    style.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
-
-                    Cell cell = linhaNota.createCell(coluna++);
-                    cell.setCellValue(0);
-                    cell.setCellStyle(style);
-
-                    textArea.append(arquivo.getParent() + "\\" + dados.get(0).trim() + ".pdf" + "\n");
-                    pdd.save(arquivo.getParent() + "\\" + dados.get(0).trim() + ".pdf");
                 }
 
+                //deve ficar fora dos laços
                 autoSizeColumns(workbook);
+                try (FileOutputStream stream = new FileOutputStream(new File(arquivos[0].getParent() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
+                    workbook.write(stream);
 
+                    stream.flush();
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Erro ao processar extração de arquivo: " + ex.getMessage(),
+                        "Erro!", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
             }
-
-            //deve ficar fora dos laços
-            try (FileOutputStream stream = new FileOutputStream(new File(arquivo.getParent() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
-                workbook.write(stream);
-
-                stream.flush();
-            }
-            JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
-                    "Êxito", JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar extração de arquivo: " + ex.getMessage(),
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         }
+
+        JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
+                "Êxito", JOptionPane.INFORMATION_MESSAGE);
+
     }//GEN-LAST:event_btProcessarActionPerformed
 
     private void autoSizeColumns(HSSFWorkbook workbook) {
@@ -311,6 +328,19 @@ public class NewLineView extends javax.swing.JInternalFrame {
                 }
             }
         }
+    }
+
+    private int getTotalPaginas() {
+        int paginasdoc = 0;
+        for (File f : arquivos) {
+            try (PDDocument d = PDDocument.load(f)) {
+                paginasdoc += d.getNumberOfPages();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, "Falha ao buscar toal de páginas!",
+                        "Falha", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        return paginasdoc;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
