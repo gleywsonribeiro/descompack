@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -20,15 +19,12 @@ import modelo.PaginaPDF;
 import modelo.RetanguloPDF;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -42,6 +38,7 @@ public class NewLineView extends javax.swing.JInternalFrame {
      * Creates new form TelaDivideArquivo
      */
     private File arquivo;
+    private File[] arquivos;
 
     public NewLineView() {
         initComponents();
@@ -176,6 +173,53 @@ public class NewLineView extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void btProcessarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btProcessarActionPerformed
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        HSSFSheet sheet = workbook.createSheet("NF");
+
+        int pagina = 0;
+        int linha = 1;
+
+        //---   CABEÇALHO
+        List<String> cabecalhos = Arrays.asList(
+                "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR",
+                "IR", "INSS", "PIS", "COFINS",
+                "CSLL", "ISS");
+
+        Row linhaCabecalho = sheet.createRow(linha - 1);
+        int colunaCabecalho = 0;
+        for (String cabecalho : cabecalhos) {
+            Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
+            celula.setCellValue(cabecalho);
+
+            CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
+            Font font = sheet.getWorkbook().createFont();
+            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+
+            cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
+            cellStyle.setFont(font);
+            celula.setCellStyle(cellStyle);
+        }
+
+        //Configuracao dos campos a serem retirados
+        PaginaPDF paginaPDF = new PaginaPDF(209.89, 297.06);
+
+        List<RetanguloPDF> campos = Arrays.asList(
+                new RetanguloPDF("NF", 133.16, 7.28, 17.99, 5.5),
+                new RetanguloPDF("Data", 133.16, 13.78, 17.99, 4.26),
+                new RetanguloPDF("Unidade", 18.33, 105.24, 200.00, 4.5),
+                new RetanguloPDF("Município", 46.14, 78.0, 80.0, 5.5),
+                new RetanguloPDF("CNPJ", 46.14, 63.92, 35.00, 3.65),
+                new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
+                new RetanguloPDF("Recolhimento", 0.0, 0.0, 0.0, 0.0),
+                new RetanguloPDF("Tributação", 0.0, 0.0, 0.0, 0.0),
+                new RetanguloPDF("Valor", 157.28, 232.64, 38.19, 10.32),
+                new RetanguloPDF("IR", 142.81, 183.29, 24.19, 4.4),
+                new RetanguloPDF("INSS", 114.0, 183.29, 24.19, 4.4),
+                new RetanguloPDF("PIS", 87.48, 183.29, 24.19, 4.4),
+                new RetanguloPDF("Cofins", 60.5, 183.29, 24.19, 4.4),
+                new RetanguloPDF("CSLL", 168.11, 183.29, 24.19, 4.4)
+        );
+
         try (PDDocument document = PDDocument.load(arquivo)) {
             int numeroPaginas = document.getNumberOfPages();
             Splitter splitter = new Splitter();
@@ -183,51 +227,6 @@ public class NewLineView extends javax.swing.JInternalFrame {
             List<PDDocument> pages = splitter.split(document);
 
             Iterator<PDDocument> iterator = pages.iterator();
-
-            int pagina = 0;
-            int linha = 1;
-
-            HSSFWorkbook workbook = new HSSFWorkbook();
-            HSSFSheet sheet = workbook.createSheet("NF");
-
-            PaginaPDF paginaPDF = new PaginaPDF(209.89, 297.06);
-            List<RetanguloPDF> campos = Arrays.asList(
-                    new RetanguloPDF("NF", 133.16, 7.28, 17.99, 5.5),
-                    new RetanguloPDF("Data", 133.16, 13.78, 17.99, 4.26),
-                    new RetanguloPDF("Unidade", 18.33, 105.24, 200.00, 4.5),
-                    new RetanguloPDF("Município", 46.14, 78.0, 80.0, 5.5),
-                    new RetanguloPDF("CNPJ", 46.14, 63.92, 35.00, 3.65),
-                    new RetanguloPDF("Descrição", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Recolhimento", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Tributação", 0.0, 0.0, 0.0, 0.0),
-                    new RetanguloPDF("Valor", 157.28, 232.64, 38.19, 10.32),
-                    new RetanguloPDF("IR", 142.81, 183.29, 24.19, 4.4),
-                    new RetanguloPDF("INSS", 114.0, 183.29, 24.19, 4.4),
-                    new RetanguloPDF("PIS", 87.48, 183.29, 24.19, 4.4),
-                    new RetanguloPDF("Cofins", 60.5, 183.29, 24.19, 4.4),
-                    new RetanguloPDF("CSLL", 168.11, 183.29, 24.19, 4.4)
-            );
-
-            //---   CABEÇALHO
-            List<String> cabecalhos = Arrays.asList(
-                    "Nº NOTA", "DATA", "UNIDADE", "MUNICÍPIO", "CNPJ", "DESCRIÇÃO", "RECOLHIMENTO", "TRIBUTAÇÃO", "VALOR",
-                    "IR", "INSS", "PIS", "COFINS",
-                    "CSLL", "ISS");
-
-            Row linhaCabecalho = sheet.createRow(linha - 1);
-            int colunaCabecalho = 0;
-            for (String cabecalho : cabecalhos) {
-                Cell celula = linhaCabecalho.createCell(colunaCabecalho++);
-                celula.setCellValue(cabecalho);
-
-                CellStyle cellStyle = sheet.getWorkbook().createCellStyle();
-                Font font = sheet.getWorkbook().createFont();
-                font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-
-                cellStyle.setFillForegroundColor(HSSFColor.GREY_40_PERCENT.index);
-                cellStyle.setFont(font);
-                celula.setCellStyle(cellStyle);
-            }
 
             while (iterator.hasNext()) {
                 try (PDDocument pdd = iterator.next()) {
@@ -281,6 +280,8 @@ public class NewLineView extends javax.swing.JInternalFrame {
                 autoSizeColumns(workbook);
 
             }
+
+            //deve ficar fora dos laços
             try (FileOutputStream stream = new FileOutputStream(new File(arquivo.getParent() + "\\" + "Notas Fiscais - New Line" + ".xls"))) {
                 workbook.write(stream);
 
@@ -289,16 +290,8 @@ public class NewLineView extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, "Processo realizado com sucesso!",
                     "Êxito", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao processar divisão de arquivo: " + ex.getMessage(),
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } catch (NullPointerException ex) {
-            JOptionPane.showMessageDialog(null, "Arquivo Nulo: " + ex.getMessage(),
-                    "Erro!", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro desconhecido: " + ex.getMessage(),
+            JOptionPane.showMessageDialog(null, "Erro ao processar extração de arquivo: " + ex.getMessage(),
                     "Erro!", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
